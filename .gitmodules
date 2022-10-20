@@ -1,0 +1,3 @@
+[submodule "InvokeAI"]
+	path = InvokeAI
+	url = https://github.com/invoke-ai/InvokeAI
