@@ -2,6 +2,7 @@ import queue
 import threading
 import os
 import random
+from matplotlib.style import use
 import numpy as np
 from pathlib import Path
 
@@ -19,7 +20,16 @@ class GenerationRequest:
 	def __init__(self, userid=-1, channel=-1, seed=seed,
 				steps=steps, samples=samples, cfg_scale=cfg_scale,
 				use_prefixes=use_prefixes, use_suffixes=use_suffixes, use_negative=use_negative,
-				inital_prompt=''):
+				prompt=''):
+		self.initial_prompt = prompt
+		self.use_negative = use_negative
+		self.use_suffixes = use_suffixes
+		self.use_prefixes = use_prefixes
+		self.steps = steps
+		self.samples = samples
+		self.cfg_scale = cfg_scale
+		self.userid = userid
+		self.channel = channel
 		self.prompt = ''
 
 		# If the user didn't define a seed to use, randomly generate one

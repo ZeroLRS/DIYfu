@@ -1,6 +1,6 @@
 # DIYfu, a Waifu Generator
 
-DIYfu generates anime-style images using [Waifu Diffusion](https://huggingface.co/hakurei/waifu-diffusion) and the [InvokeAI](https://github.com/invoke-ai/InvokeAI) fork of [Stable Diffusion](https://github.com/CompVis/stable-diffusion).
+DIYfu generates anime-style images using [Waifu Diffusion](https://huggingface.co/hakurei/waifu-diffusion) and the [InvokeAI](https://github.com/invoke-ai/InvokeAI) fork of [Stable Diffusion](https://github.com/CompVis/stable-diffusion).  
 This is my first project in Python, so my code is likely full of style issues and standard non-conforming practices. If you see anything that can be improved up, please feel free to create an issue and I'll address it.
 # Running
 
@@ -13,15 +13,30 @@ This is my first project in Python, so my code is likely full of style issues an
  6. Run the command `python DIYfu` to execute the program.
 
 # Usage
-Type $y followed by up to three integer values for step, cfg, and seed, finally the prompt in quotes.
-Here's a basic example:
-![Example Command](../media/ExampleCommand.png)  ![Example Image](../media/ExampleImage.png)
+Use $y followed by any optional commands to generate an image.  
+
+For example: `$ys 101 "A mountain"` will generate a picture of a mountain using the seed 101.  
+
+The full list of commands is:
+`s`: The seed to use for the image's generation
+`i`: The number of iterations the image should take to generate
+`c`: The cfg_scale value to use when generating the image.
+`d`: Disables the default (p)refix, (s)uffix, and/or (n)egative prompt additions
+`p`: Can be used to place the prompt somewhere other than the end  
+
+For example: `$yscipd 777 5 200 "A green car" ps` will generate an image of a green car with: a seed of 777, a cfg value of 5, taking 200 steps of generation, and ignoring the prefix and suffix default prompt additions.  
+
+![Example Command](../media/ExampleCommand.png)  ![Example Image](../media/ExampleImage.png)  
+
+# Recent Additions
+- A much better syntax for issuing commands to the bot.
+- A help command to show what the arguments for generating an image are, and how to use the bot
+- A defaults command to show what the default prompt additions are
 
 # Upcoming
 Some features I plan to implement include: 
-- A much better syntax for issuing commands to the bot.
+- Update to the defaults command to show what the default arguments are if not specified
 - The abillity to load [textual inversion checkpoints](https://huggingface.co/docs/diffusers/training/text_inversion) as an argument, using checkpoints defined by the bot's host.
-- A help command to show what the arguments for generating an image are, and what they default to if not specified.
 - A command to view the current queue.
 - The option to also have the image DM'd to the user prompting it.
 Suggestions are welcome.
