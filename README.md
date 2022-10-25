@@ -2,7 +2,7 @@
   
 DIYfu generates anime-style images using [Waifu Diffusion](https://huggingface.co/hakurei/waifu-diffusion) and the [InvokeAI](https://github.com/invoke-ai/InvokeAI) fork of [Stable Diffusion](https://github.com/CompVis/stable-diffusion).
 
-This is my first project in Python, so my code is likely full of style issues and standard non-conforming practices. If you see anything that can be improved up, please feel free to create an issue and I'll address it.
+This is my first project in Python, so my code is likely full of style issues and standard non-conforming practices. If you see anything that can be improved upon, please feel free to create an issue and I'll address it.
 
 # Running
   
@@ -41,9 +41,9 @@ For example: `$yscipd 777 5 200 "A green car" ps` will generate an image of a gr
   
 ![Example Command](../media/ExampleCommand.png) ![Example Image](../media/ExampleImage.png)
   
-This information can be found in the bot using the `$help` command.
-A list of default values (from `config.ini`) can be shown via the `$defaults` command. 
-The current queue of users waiting for generation can be viewed with the `$queue` command.
+This information can be found in the bot using the `$help` command.  
+A list of default values (from `config.ini`) can be shown via the `$defaults` command.  
+The current queue of users waiting for generation can be viewed with the `$queue` command.  
   
 # Recent Additions
 
