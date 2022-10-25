@@ -156,33 +156,45 @@ class DIYfuBot:
                     f"`s`: {seed_text}\n"
                     f"`i`: {GenerationRequest.steps} steps\n"
                     f"`c`: a cfg of {GenerationRequest.cfg_scale}\n"
-                    f"`d`: prefixes:`{str(GenerationRequest.use_prefixes)}`, suffixes:`{str(GenerationRequest.use_suffixes)}`, negatives:`{str(GenerationRequest.use_negative)}`")
+                    f"`d`: prefixes: `{str(GenerationRequest.use_prefixes)}`, suffixes: `{str(GenerationRequest.use_suffixes)}`, negatives: `{str(GenerationRequest.use_negative)}`")
         await ctx.send(message)
 
     @commands.command()
     async def queue(ctx : commands.Context, *args):
+        # Build our embed that is sent to the channel
+        embed : discord.Embed = discord.Embed(title="Image Generation Queue",
+                            colour=0x00FFFF)
+
         # If there is a processing request and the image generator is working on it, post that
         if(GenerationRequestManager.current_request != None and GenerationRequestManager.currently_generating == True):
-            message = f"Currenly generating image from prompt for: @{DIYfuBot.bot.get_user(GenerationRequestManager.current_request.userid).display_name}.\n"
+            request = GenerationRequestManager.current_request
+            prompt = request.initial_prompt
+            if (len(prompt) > 50):
+                prompt = prompt[0:50] + "..."
+            embed.add_field(name=f"Generating Now", value=f"<@{request.userid}>: `{prompt}`", inline=False)
         # There is never a case where there is no image being generated and there's a queue, so there's no reason to check
         else:
-            message = "Not currently generating any images."
-            await ctx.send(message)
+            embed.description = "Not currently generating any images."
+            await ctx.send(embed=embed)
             return
 
         # If the queue is empty, append that and send the message
-        if (len(GenerationRequestManager.generate_queue) == 0):
-            message += "No items in queue."
-            await ctx.send(message)
+        if (GenerationRequestManager.generate_queue.empty() == True):
+            embed.description += "The queue is empty!"
+            await ctx.send(embed=embed, inline=False)
             return
 
         # If there is something in the queue, append each item in a numbered list
         iter = 1
-        for request in list(GenerationRequestManager.generate_queue):
-            message += f"{str(iter)}. @{DIYfuBot.bot.get_user(request.userid).display_name}"
+        for request in list(GenerationRequestManager.generate_queue.queue):
+            prompt = request.initial_prompt
+            if (len(prompt) > 50):
+                prompt = prompt[0:50] + "..."
+            embed.add_field(name=f"#{str(iter)} in Queue", value = f"<@{request.userid}>: `{prompt}`", inline=False)
             iter += 1
 
-        await ctx.send(message)
+        # Send the embed
+        await ctx.send(embed=embed)
 
 # For testing/debugging purposes, it's nice to be able to run the bot independent of the image generator
 if (__name__ == "__main__"):
