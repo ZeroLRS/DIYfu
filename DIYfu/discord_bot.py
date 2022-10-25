@@ -1,6 +1,5 @@
 import datetime
 import shlex
-from click import argument
 
 import discord
 from discord.ext import commands
@@ -28,6 +27,7 @@ class DIYfuBot:
 
         # Add in our custom commands
         self.bot.add_command(DIYfuBot.defaults)
+        self.bot.add_command(DIYfuBot.queue)
 
         # Remove the help command and replace it with a custom one
         self.bot.remove_command('help')
@@ -124,20 +124,67 @@ class DIYfuBot:
                 request.initial_prompt = args[argument_index]
                 found_prompt = True
 
+        # Add the new request to the queue
         GenerationRequestManager.add_request(request)
+
         print("Sending request: " + str(vars(request)))
         await message.channel.send("Request recieved!")
   
     @commands.command()
     async def help(ctx : commands.Context, *args):
-        message = "Use $y followed by any optional commands to generate an image.\n\nFor example: `$ys 101 \"A mountain\" ` will generate a picture of a mountain using the seed 101.\n\nThe full list of commands is:\n`s`: The seed to use for the image's generation\n`i`: The number of iterations the image should take to generate\n`c`: The cfg_scale value to use when generating the image.\n`d`: Disables the default (p)refix, (s)uffix, and/or (n)egative prompt additions\n`p`: Can be used to place the prompt somewhere other than the end\n\nFor example: `$yscipd 777 5 200 \"A green car\" ps` will generate an image of a green car with: a seed of 777, a cfg value of 5, taking 200 steps of generation, and ignoring the prefix and suffix default prompt additions."
+        message = ("Use $y followed by any optional commands to generate an image.\n\n"
+                    "For example: `$ys 101 \"A mountain\" ` will generate a picture of a mountain using the seed 101.\n\n"
+                    "The full list of commands is:\n"
+                    "`s`: The seed to use for the image's generation\n"
+                    "`i`: The number of iterations the image should take to generate\n"
+                    "`c`: The cfg_scale value to use when generating the image.\n"
+                    "`d`: Disables the default (p)refix, (s)uffix, and/or (n)egative prompt additions\n"
+                    "`p`: Can be used to place the prompt somewhere other than the end\n\n"
+                    "For example: `$yscipd 777 5 200 \"A green car\" ps` will generate an image of a green car with: a seed of 777, a cfg value of 5, taking 200 steps of generation, and ignoring the prefix and suffix default prompt additions.")
         await ctx.send(message)
 
     @commands.command()
-    async def defaults(ctx :commands.Context, *args):
-        message = f"Default Prompt Additions:\nPrefixes: `{GenerationRequestManager.prompt_prefixes}`\nSuffixes: `{GenerationRequestManager.prompt_suffixes}`\nNegative: `{GenerationRequestManager.prompt_negative}`"
+    async def defaults(ctx : commands.Context, *args):
+        seed_text = "a random number"
+        if (GenerationRequest.seed != -1):
+            seed_text = f"fixed to {GenerationRequest.seed}"
+        message = ("Default Prompt Additions:\n"
+                    f"Prefixes: `{GenerationRequestManager.prompt_prefixes}`\n"
+                    f"Suffixes: `{GenerationRequestManager.prompt_suffixes}`\n"
+                    f"Negative: `{GenerationRequestManager.prompt_negative}`\n\n"
+                    "Default command values:\n"
+                    f"`s`: {seed_text}\n"
+                    f"`i`: {GenerationRequest.steps} steps\n"
+                    f"`c`: a cfg of {GenerationRequest.cfg_scale}\n"
+                    f"`d`: prefixes:`{str(GenerationRequest.use_prefixes)}`, suffixes:`{str(GenerationRequest.use_suffixes)}`, negatives:`{str(GenerationRequest.use_negative)}`")
         await ctx.send(message)
 
+    @commands.command()
+    async def queue(ctx : commands.Context, *args):
+        # If there is a processing request and the image generator is working on it, post that
+        if(GenerationRequestManager.current_request != None and GenerationRequestManager.currently_generating == True):
+            message = f"Currenly generating image from prompt for: @{DIYfuBot.bot.get_user(GenerationRequestManager.current_request.userid).display_name}.\n"
+        # There is never a case where there is no image being generated and there's a queue, so there's no reason to check
+        else:
+            message = "Not currently generating any images."
+            await ctx.send(message)
+            return
+
+        # If the queue is empty, append that and send the message
+        if (len(GenerationRequestManager.generate_queue) == 0):
+            message += "No items in queue."
+            await ctx.send(message)
+            return
+
+        # If there is something in the queue, append each item in a numbered list
+        iter = 1
+        for request in list(GenerationRequestManager.generate_queue):
+            message += f"{str(iter)}. @{DIYfuBot.bot.get_user(request.userid).display_name}"
+            iter += 1
+
+        await ctx.send(message)
+
+# For testing/debugging purposes, it's nice to be able to run the bot independent of the image generator
 if (__name__ == "__main__"):
     import configparser
     import os
